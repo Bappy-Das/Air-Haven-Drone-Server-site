@@ -19,24 +19,35 @@ async function run() {
         console.log("conncect in async")
         const database = client.db("dronetastic");
         const productCollection = database.collection("products");
+        const orderCollection = database.collection("orders");
 
         // Add new product
         app.post('/addservice', async (req, res) => {
-            // const service = req.body
-            const service = {
-                "name": "mavic mini 2",
-                "describe": "The Loren range offers high performance in extremely compact dimensions. The use of high quality COB LEDs, with CRI 85 and CRI 93, is matched by clean and highly efficient optics. An innovative dissipative concept that reduces weight and dimensions, guaranteeing a long and efficient life-span even in particularly thermally demanding situations.",
-                "img": "https://diamu.com.bd/wp-content/uploads/2021/01/DJI-Mavic-Mini-2-51.jpg"
-            }
-            const result = await productCollection.insertOne(service)
-            res.json(result)
+            const product = req.body;
+            const result = await productCollection.insertOne(product)
+            res.json('result')
         })
+
         // get all products
         app.get('/products', async (req, res) => {
             const cursor = productCollection.find({});
             const products = await cursor.toArray();
             res.send(products)
         })
+
+        // Post Order
+        app.post('/purchaseorder', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order)
+            res.json(result)
+        })
+        // Get all Order
+        app.get('/orders', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders)
+        })
+
         // get single Product
         app.get('/product/:id', async (req, res) => {
             const id = req.params.id;
