@@ -20,12 +20,46 @@ async function run() {
         const database = client.db("dronetastic");
         const productCollection = database.collection("products");
         const orderCollection = database.collection("orders");
+        const userCollection = database.collection("users");
+        const reviewCollection = database.collection("reviews");
 
         // Add new product
         app.post('/addservice', async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product)
-            res.json('result')
+            res.json(result)
+        })
+        app.post('/addreview', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review)
+            res.json(result)
+        })
+
+        // Add user
+        app.post('/adduser', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user)
+            res.json(result)
+        })
+
+        app.put('/adduser', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updatedDoc = { $set: user }
+            const result = await userCollection.updateOne(filter, updatedDoc, options);
+            res.json(result)
+        })
+
+        // Make Admin
+        app.put('/adduser/admin', async (req, res) => {
+            const user = req.body;
+            console.log(user)
+            const filter = { email: user.adminEmail };
+            console.log("filter", filter)
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.json(result)
         })
 
         // get all products
@@ -34,6 +68,12 @@ async function run() {
             const products = await cursor.toArray();
             res.send(products)
         })
+        app.get('/review', async (req, res) => {
+            const cursor = reviewCollection.find({});
+            const products = await cursor.toArray();
+            res.send(products)
+        })
+
 
         // Post Order
         app.post('/purchaseorder', async (req, res) => {
@@ -42,10 +82,11 @@ async function run() {
             res.json(result)
         })
         // Get all Order
+
         app.get('/orders', async (req, res) => {
             const cursor = orderCollection.find({});
-            const orders = await cursor.toArray();
-            res.send(orders)
+            const services = await cursor.toArray();
+            res.send(services)
         })
 
         // get single Product
@@ -55,6 +96,37 @@ async function run() {
             const service = await productCollection.findOne(query);
             res.json(service)
         })
+        // Delete Order
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(id)
+            const query = { _id: ObjectId(id) };
+            const service = await orderCollection.deleteOne(query);
+            res.json(service)
+        })
+        // Product Manage/delete Product
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(id)
+            const query = { _id: ObjectId(id) };
+            const service = await productCollection.deleteOne(query);
+            res.json(service)
+        })
+        // Update Status
+        app.put('/updatestatus/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    'status': 'Approved'
+                }
+            };
+            const result = await orderCollection.updateOne(query, updatedDoc, options);
+            res.send(result)
+        })
+
     }
     finally {
         // await client.close();
