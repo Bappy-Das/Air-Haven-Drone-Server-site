@@ -61,6 +61,20 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc);
             res.json(result)
         })
+        // get admin user
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+
+            res.send({ admin: isAdmin })
+        })
+
 
         // get all products
         app.get('/products', async (req, res) => {
