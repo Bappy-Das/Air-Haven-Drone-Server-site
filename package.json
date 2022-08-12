@@ -7,7 +7,7 @@
     "start": "node index.js",
     "start-dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
+    "heroku-postbuild": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +17,9 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "mongodb": "^4.1.4"
+  },
+  "engines": {
+    "npm": "8.13.1",
+    "node": "14.17.4"
   }
 }
